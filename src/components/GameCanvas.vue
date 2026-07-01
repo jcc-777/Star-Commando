@@ -101,11 +101,11 @@ const firePointerId = ref<number | null>(null)
 const joystickVector = ref({ x: 0, y: 0 })
 
 const paletteList = [
-  { top: '#020617', bottom: '#111827', accent: '#38bdf8' },
-  { top: '#0f172a', bottom: '#172554', accent: '#818cf8' },
-  { top: '#1e1b4b', bottom: '#3b0764', accent: '#f472b6' },
-  { top: '#082f49', bottom: '#083344', accent: '#2dd4bf' },
-  { top: '#3f0d12', bottom: '#1e293b', accent: '#f59e0b' },
+  { top: '#02030a', bottom: '#09111f', accent: '#22d3ee' },
+  { top: '#060816', bottom: '#171b4f', accent: '#818cf8' },
+  { top: '#140718', bottom: '#35084d', accent: '#f472b6' },
+  { top: '#041421', bottom: '#07293d', accent: '#2dd4bf' },
+  { top: '#180710', bottom: '#1f1d3a', accent: '#f59e0b' },
 ]
 
 const joystickCenter = computed(() => ({ x: 74, y: baseHeight - 84 }))
@@ -435,11 +435,35 @@ const drawBackground = (context: CanvasRenderingContext2D) => {
   context.fillStyle = gradient
   context.fillRect(0, 0, baseWidth, baseHeight)
 
+  const horizon = context.createLinearGradient(0, 0, baseWidth, baseHeight)
+  horizon.addColorStop(0, '#00000000')
+  horizon.addColorStop(0.5, `${palette.accent}10`)
+  horizon.addColorStop(1, '#00000000')
+  context.fillStyle = horizon
+  context.fillRect(0, 0, baseWidth, baseHeight)
+
   const burst = context.createRadialGradient(baseWidth / 2, baseHeight * 0.28, 10, baseWidth / 2, baseHeight * 0.28, baseWidth * 0.72)
   burst.addColorStop(0, `${palette.accent}33`)
   burst.addColorStop(1, '#00000000')
   context.fillStyle = burst
   context.fillRect(0, 0, baseWidth, baseHeight)
+
+  context.save()
+  context.strokeStyle = `${palette.accent}12`
+  context.lineWidth = 1
+  for (let x = 0; x <= baseWidth; x += 36) {
+    context.beginPath()
+    context.moveTo(x, 0)
+    context.lineTo(x, baseHeight)
+    context.stroke()
+  }
+  for (let y = 0; y <= baseHeight; y += 36) {
+    context.beginPath()
+    context.moveTo(0, y)
+    context.lineTo(baseWidth, y)
+    context.stroke()
+  }
+  context.restore()
 }
 
 const drawStars = (context: CanvasRenderingContext2D, group: Star[], color: string) => {
@@ -557,18 +581,30 @@ const drawParticles = (context: CanvasRenderingContext2D) => {
 
 const drawHud = (context: CanvasRenderingContext2D) => {
   context.save()
-  context.fillStyle = '#020617aa'
-  context.fillRect(0, 0, baseWidth, 58)
-
-  context.fillStyle = '#e2e8f0'
-  context.font = 'bold 15px sans-serif'
-  context.fillText(`Score ${score.value}`, 18, 26)
-  context.fillText(`Level ${level.value}`, 18, 46)
-  context.fillText(`Hull ${Math.max(player.value.lives, 0)}`, baseWidth - 90, 26)
+  context.fillStyle = '#020617cc'
+  context.fillRect(14, 12, baseWidth - 28, 60)
+  context.strokeStyle = '#22d3ee33'
+  context.strokeRect(14, 12, baseWidth - 28, 60)
 
   context.fillStyle = '#94a3b8'
-  context.font = '13px sans-serif'
-  context.fillText('Arrow Keys Move / Space Fire', 18, baseHeight - 24)
+  context.font = '11px sans-serif'
+  context.fillText('MISSION SCORE', 28, 30)
+  context.fillText('SECTOR', 190, 30)
+  context.fillText('HULL', baseWidth - 92, 30)
+
+  context.fillStyle = '#e2e8f0'
+  context.font = 'bold 20px sans-serif'
+  context.fillText(String(score.value).padStart(4, '0'), 28, 54)
+  context.fillStyle = '#67e8f9'
+  context.fillText(String(level.value).padStart(2, '0'), 190, 54)
+  context.fillStyle = player.value.lives <= 1 ? '#fb7185' : '#4ade80'
+  context.fillText(String(Math.max(player.value.lives, 0)), baseWidth - 64, 54)
+
+  context.fillStyle = '#94a3b8'
+  context.font = '12px sans-serif'
+  context.fillText('ARROW KEYS / SPACE', 20, baseHeight - 30)
+  context.fillStyle = '#22d3ee'
+  context.fillText('TACTICAL HUD ONLINE', baseWidth - 160, baseHeight - 30)
   context.restore()
 }
 
@@ -583,10 +619,15 @@ const drawMobileControls = (context: CanvasRenderingContext2D) => {
 
   context.strokeStyle = '#67e8f9'
   context.lineWidth = 2
-  context.fillStyle = '#0f172ab3'
+  context.fillStyle = '#08101fb8'
   context.beginPath()
   context.arc(joystickCenter.value.x, joystickCenter.value.y, joystickRadius, 0, Math.PI * 2)
   context.fill()
+  context.stroke()
+
+  context.beginPath()
+  context.arc(joystickCenter.value.x, joystickCenter.value.y, joystickRadius - 12, 0, Math.PI * 2)
+  context.strokeStyle = '#22d3ee22'
   context.stroke()
 
   context.fillStyle = '#22d3ee'
@@ -601,8 +642,13 @@ const drawMobileControls = (context: CanvasRenderingContext2D) => {
   context.fill()
   context.stroke()
 
+  context.beginPath()
+  context.arc(fireButtonCenter.value.x, fireButtonCenter.value.y, 24, 0, Math.PI * 2)
+  context.strokeStyle = '#f9a8d455'
+  context.stroke()
+
   context.fillStyle = '#ffffff'
-  context.font = 'bold 16px sans-serif'
+  context.font = 'bold 15px sans-serif'
   context.textAlign = 'center'
   context.fillText('FIRE', fireButtonCenter.value.x, fireButtonCenter.value.y + 5)
   context.restore()

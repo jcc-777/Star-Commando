@@ -72,55 +72,80 @@ const onSecondary = () => {
 </script>
 
 <template>
-  <div class="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/72 px-5 backdrop-blur-md">
-    <div class="panel-glow w-full rounded-[28px] border border-cyan-300/15 p-6 text-center shadow-panel">
-      <p class="text-xs uppercase tracking-[0.35em] text-cyan-300/70">
+  <div class="absolute inset-0 z-20 flex items-center justify-center bg-[#02030acc] px-4 backdrop-blur-xl">
+    <div class="cyber-panel relative w-full max-w-[92%] overflow-hidden rounded-[28px] p-5 text-center shadow-[0_0_60px_rgba(8,145,178,0.16)] md:max-w-[84%]">
+      <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.16),transparent_40%),linear-gradient(180deg,transparent,rgba(244,114,182,0.06))]" />
+      <div class="relative z-10">
+        <div class="mx-auto mb-5 h-1.5 w-20 rounded-full bg-gradient-to-r from-cyan-300 via-sky-400 to-fuchsia-400" />
+        <p class="text-xs uppercase tracking-[0.42em] text-cyan-300/70">
         {{ overlayConfig.eyebrow }}
-      </p>
-      <h2 class="mt-4 text-3xl font-black text-white">
-        {{ overlayConfig.title }}
-      </h2>
-      <p class="mt-3 text-sm leading-7 text-slate-300">
-        {{ overlayConfig.description }}
-      </p>
+        </p>
+        <h2 class="mt-3 text-2xl font-black tracking-[0.06em] text-white md:text-3xl">
+          {{ overlayConfig.title }}
+        </h2>
+        <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-300">
+          {{ overlayConfig.description }}
+        </p>
 
-      <div class="mt-6 grid grid-cols-2 gap-3 text-left">
-        <div class="rounded-2xl border border-cyan-400/15 bg-slate-900/55 p-4">
-          <p class="text-xs uppercase tracking-[0.25em] text-slate-400">分数</p>
-          <p class="mt-2 text-2xl font-black text-cyan-300">{{ score }}</p>
+        <div class="glass-divider my-6" />
+
+        <div class="mt-5 grid grid-cols-2 gap-2 text-left">
+          <div class="cyber-card rounded-[22px] p-4">
+            <p class="hud-label">分数</p>
+            <p class="mt-3 text-3xl font-black text-cyan-300 neon-number">{{ score }}</p>
+            <p class="mt-2 text-xs uppercase tracking-[0.25em] text-cyan-300/60">Mission Log</p>
+          </div>
+          <div class="cyber-card rounded-[22px] p-4">
+            <p class="hud-label">最高分</p>
+            <p class="mt-3 text-3xl font-black text-fuchsia-300 neon-number">{{ highScore }}</p>
+            <p class="mt-2 text-xs uppercase tracking-[0.25em] text-fuchsia-300/60">Archive Node</p>
+          </div>
         </div>
-        <div class="rounded-2xl border border-fuchsia-400/15 bg-slate-900/55 p-4">
-          <p class="text-xs uppercase tracking-[0.25em] text-slate-400">最高分</p>
-          <p class="mt-2 text-2xl font-black text-fuchsia-300">{{ highScore }}</p>
+
+        <div
+          v-if="phase === 'ready'"
+          class="cyber-card mt-6 rounded-[22px] p-4 text-left text-sm leading-7 text-slate-300"
+        >
+          <div class="mb-3 flex items-center justify-between">
+            <p class="hud-label">Control Briefing</p>
+            <span class="text-xs uppercase tracking-[0.28em] text-cyan-300/70">Pilot Ready</span>
+          </div>
+          <p>方向键：移动飞船</p>
+          <p>空格键：快速射击</p>
+          <p>左下摇杆：手机移动</p>
+          <p>右下火控：手机开火</p>
         </div>
-      </div>
 
-      <div
-        v-if="phase === 'ready'"
-        class="mt-6 rounded-2xl border border-white/10 bg-slate-900/45 p-4 text-left text-sm leading-7 text-slate-300"
-      >
-        <p>方向键：移动飞船</p>
-        <p>空格键：快速射击</p>
-        <p>左下摇杆：手机移动</p>
-        <p>右下火控：手机开火</p>
-      </div>
+        <div
+          v-else
+          class="cyber-card mt-6 rounded-[22px] p-4 text-left text-sm leading-7 text-slate-300"
+        >
+          <div class="mb-3 flex items-center justify-between">
+            <p class="hud-label">Combat Status</p>
+            <span class="text-xs uppercase tracking-[0.28em] text-fuchsia-300/70">System Relay</span>
+          </div>
+          <p>当前关卡：第 {{ level }} 关</p>
+          <p>上一阶段：第 {{ Math.max(lastClearedLevel, 0) }} 关</p>
+          <p>建议保持机动，优先清理高速坠落目标与精英怪。</p>
+        </div>
 
-      <div class="mt-6 flex gap-3">
-        <button
-          class="flex-1 rounded-2xl bg-gradient-to-r from-cyan-400 to-blue-500 px-5 py-3 text-sm font-bold text-slate-950 transition hover:brightness-110"
-          @click="onPrimary"
-        >
-          {{ overlayConfig.primaryText }}
-        </button>
-        <button
-          class="rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-3 text-sm font-semibold text-slate-100 transition hover:border-cyan-300/30 hover:text-cyan-200"
-          :class="{
-            'cursor-default opacity-70': phase === 'ready',
-          }"
-          @click="onSecondary"
-        >
-          {{ overlayConfig.secondaryText }}
-        </button>
+        <div class="mt-5 flex gap-2">
+          <button
+            class="cyber-button pulse-cta flex-1 rounded-[20px] px-5 py-3.5 text-sm font-black uppercase tracking-[0.28em] transition hover:-translate-y-0.5 hover:brightness-110"
+            @click="onPrimary"
+          >
+            {{ overlayConfig.primaryText }}
+          </button>
+          <button
+            class="cyber-button-alt rounded-[20px] px-4 py-3.5 text-sm font-bold uppercase tracking-[0.2em] text-slate-100 transition hover:border-cyan-300/30 hover:text-cyan-200"
+            :class="{
+              'cursor-default opacity-70': phase === 'ready',
+            }"
+            @click="onSecondary"
+          >
+            {{ overlayConfig.secondaryText }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
